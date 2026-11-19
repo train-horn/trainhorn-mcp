@@ -1,0 +1,22 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.train-horn/trainhorn-mcp",
+  "description": "Train horn calculators: dB vs distance, air tank runtime, compressor recovery, wire gauge.",
+  "title": "Train Horn Calculators",
+  "repository": {
+    "url": "https://github.com/train-horn/trainhorn-mcp",
+    "source": "github"
+  },
+  "version": "1.0.0",
+  "websiteUrl": "https://train-horn.com/",
+  "packages": [
+    {
+      "registryType": "mcpb",
+      "identifier": "https://github.com/train-horn/trainhorn-mcp/releases/download/v1.0.0/trainhorn-mcp.mcpb",
+      "fileSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ]
+}

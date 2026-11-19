@@ -1,0 +1,74 @@
+{
+  "manifest_version": "0.3",
+  "name": "trainhorn-mcp",
+  "display_name": "Train Horn Calculators",
+  "version": "1.0.0",
+  "description": "Train horn calculators for assistants: loudness vs distance, air tank runtime, compressor recovery and wire gauge.",
+  "long_description": "Five tools that compute, instead of guess, the numbers people ask about when they plan an air horn or train horn setup on a car or truck: the sound level at a distance from a rated dB figure (inverse-square law, optional ISO 9613 air absorption), the distance at which a horn drops to a given level, seconds of horn time from an air tank (Boyle's law) and blast count, compressor recovery time (constant or linear flow model), and the smallest copper AWG for a 12/24 V run by voltage drop. Every result comes with its assumptions. Includes a short 'horn law basics' note (not legal advice). Runs locally, no network access, no data stored. Maths ported from the tested trainhorn-calc core by Train Horn (train-horn.com).",
+  "author": {
+    "name": "Train Horn",
+    "url": "https://train-horn.com/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/train-horn/trainhorn-mcp.git"
+  },
+  "homepage": "https://github.com/train-horn/trainhorn-mcp#readme",
+  "support": "https://github.com/train-horn/trainhorn-mcp/issues",
+  "icon": "icon.png",
+  "server": {
+    "type": "node",
+    "entry_point": "server/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": [
+        "${__dirname}/server/index.js"
+      ]
+    }
+  },
+  "tools": [
+    {
+      "name": "spl_at_distance",
+      "description": "Horn sound level at a distance from a rated dB figure"
+    },
+    {
+      "name": "distance_for_level",
+      "description": "Distance at which a horn falls to a target dB level"
+    },
+    {
+      "name": "air_tank_runtime",
+      "description": "Seconds of horn time and blast count from an air tank"
+    },
+    {
+      "name": "compressor_recovery",
+      "description": "Time for a compressor to refill the tank"
+    },
+    {
+      "name": "wire_gauge",
+      "description": "Smallest copper AWG by voltage drop, or check a gauge"
+    }
+  ],
+  "keywords": [
+    "train horn",
+    "air horn",
+    "decibel",
+    "sound level",
+    "air tank",
+    "compressor",
+    "wire gauge",
+    "awg",
+    "12v",
+    "calculator"
+  ],
+  "license": "MIT",
+  "compatibility": {
+    "platforms": [
+      "darwin",
+      "win32",
+      "linux"
+    ],
+    "runtimes": {
+      "node": ">=18.3.0"
+    }
+  }
+}

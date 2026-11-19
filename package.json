@@ -1,0 +1,24 @@
+{
+  "name": "trainhorn-mcp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MCP server with train horn calculators: SPL vs distance, air tank runtime, compressor recovery and wire gauge.",
+  "type": "module",
+  "main": "server/index.js",
+  "bin": {
+    "trainhorn-mcp": "server/index.js"
+  },
+  "scripts": {
+    "test": "node --test test/core.test.js test/tools.test.js test/protocol.test.js"
+  },
+  "engines": {
+    "node": ">=18.3"
+  },
+  "homepage": "https://train-horn.com/tools/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/train-horn/trainhorn-mcp.git"
+  },
+  "author": "Train Horn (https://train-horn.com/)",
+  "license": "MIT"
+}
