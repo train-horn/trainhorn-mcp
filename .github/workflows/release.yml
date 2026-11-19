@@ -1,0 +1,71 @@
+name: Release and publish to the MCP Registry
+
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # create the GitHub release and upload the .mcpb
+      id-token: write   # OIDC login to the MCP Registry (no tokens stored)
+    env:
+      MCP_PUBLISHER_VERSION: v1.8.1
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+
+      - name: Test
+        run: node --test test/core.test.js test/tools.test.js test/protocol.test.js
+
+      - name: Check versions match the tag
+        run: |
+          v="${GITHUB_REF_NAME#v}"
+          test "$(jq -r .version manifest.json)" = "$v"
+          test "$(jq -r .version server.json)" = "$v"
+
+      - name: Build the MCP bundle
+        run: |
+          npx -y @anthropic-ai/mcpb@2.1.2 validate manifest.json
+          npx -y @anthropic-ai/mcpb@2.1.2 pack . trainhorn-mcp.mcpb
+          sha=$(sha256sum trainhorn-mcp.mcpb | cut -d' ' -f1)
+          echo "SHA=$sha" >> "$GITHUB_ENV"
+          jq --arg sha "$sha" --arg url "https://github.com/${GITHUB_REPOSITORY}/releases/download/${GITHUB_REF_NAME}/trainhorn-mcp.mcpb" \
+             '.packages[0].fileSha256 = $sha | .packages[0].identifier = $url' server.json > server.tmp && mv server.tmp server.json
+          cat server.json
+
+      - name: Attach the bundle to the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          notes="Install: download trainhorn-mcp.mcpb and open it in Claude Desktop, or see the README for other clients. SHA-256: $SHA"
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            # The release was created in the web UI together with the tag: add the bundle to it.
+            gh release upload "$GITHUB_REF_NAME" trainhorn-mcp.mcpb --clobber
+            gh release edit "$GITHUB_REF_NAME" --notes "$notes"
+          else
+            gh release create "$GITHUB_REF_NAME" trainhorn-mcp.mcpb --title "$GITHUB_REF_NAME" --notes "$notes"
+          fi
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
+
+      - name: Download and verify mcp-publisher
+        run: |
+          set -euo pipefail
+          archive="mcp-publisher_linux_amd64.tar.gz"
+          base="https://github.com/modelcontextprotocol/registry/releases/download/${MCP_PUBLISHER_VERSION}"
+          curl -fsSL -o "$archive" "$base/$archive"
+          curl -fsSL -o "$archive.sigstore.json" "$base/$archive.sigstore.json"
+          cosign verify-blob --bundle "$archive.sigstore.json" \
+            --certificate-identity "https://github.com/modelcontextprotocol/registry/.github/workflows/release.yml@refs/tags/${MCP_PUBLISHER_VERSION}" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com" "$archive"
+          tar xzf "$archive" mcp-publisher
+
+      - name: Publish to the MCP Registry
+        run: |
+          ./mcp-publisher login github-oidc
+          ./mcp-publisher publish
