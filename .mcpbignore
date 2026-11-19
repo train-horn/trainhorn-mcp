@@ -1,0 +1,7 @@
+test/
+.github/
+server.json
+*.mcpb
+.mcpbignore
+package-lock.json
+node_modules/
